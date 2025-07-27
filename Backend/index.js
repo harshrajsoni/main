@@ -45,6 +45,10 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', ({ roomId, userId, userType }) => {
     socket.join(roomId);
+    
+    // Store userId on socket for later use
+    socket.userId = userId;
+    socket.userType = userType;
 
     if (!activeRooms.has(roomId)) {
       activeRooms.set(roomId, new Set());
@@ -53,17 +57,22 @@ io.on('connection', (socket) => {
 
     socket.to(roomId).emit('user-joined', { userId, userType });
     console.log(`User ${userId} joined room ${roomId}`);
+    console.log(`Emitting user-joined event to room ${roomId} for user ${userId}`);
   });
 
   socket.on('offer', ({ roomId, offer, targetUserId }) => {
+    console.log('Forwarding offer from', socket.userId, 'to room', roomId, 'targetUserId:', targetUserId);
     socket.to(roomId).emit('offer', { offer, fromUserId: socket.userId });
+    console.log('Offer forwarded successfully');
   });
 
   socket.on('answer', ({ roomId, answer, targetUserId }) => {
+    console.log('Forwarding answer from', socket.userId, 'to room', roomId);
     socket.to(roomId).emit('answer', { answer, fromUserId: socket.userId });
   });
 
   socket.on('ice-candidate', ({ roomId, candidate, targetUserId }) => {
+    console.log('Forwarding ICE candidate from', socket.userId, 'to room', roomId);
     socket.to(roomId).emit('ice-candidate', { candidate, fromUserId: socket.userId });
   });
 

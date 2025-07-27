@@ -28,7 +28,7 @@ const initialState = {
 export const fetchConversationsThunk = createAsyncThunk('conversations/fetchConversations',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('http://localhost:3000/api/message/get-conversations', {
+            const response = await axios.get('/api/message/get-conversations', {
                 withCredentials: true
             });
             console.log(response);
@@ -43,7 +43,7 @@ export const createConversationThunk = createAsyncThunk('conversations/createCon
     async (participants, { rejectWithValue }) => {
         try {
             // participants: array of { participantId, participantModel }
-            const response = await axios.post('http://localhost:3000/api/message/conversations',
+            const response = await axios.post('/api/message/conversations',
                 { participants },
                 { withCredentials: true }
             );
@@ -58,7 +58,7 @@ export const createConversationThunk = createAsyncThunk('conversations/createCon
 export const addParticipantThunk = createAsyncThunk('conversations/addParticipant',
     async ({ conversationId, participantId, participantModel, role }, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`http://localhost:3000/api/message/conversations/${conversationId}/participants`,
+            const response = await axios.post(`/api/message/conversations/${conversationId}/participants`,
                 { participantId, participantModel, role },
                 { withCredentials: true }
             );
@@ -73,7 +73,7 @@ export const addParticipantThunk = createAsyncThunk('conversations/addParticipan
 export const removeParticipantThunk = createAsyncThunk('conversations/removeParticipant',
     async ({ conversationId, participantId, participantModel }, { rejectWithValue }) => {
         try {
-            const response = await axios.delete(`http://localhost:3000/api/message/conversations/${conversationId}/participants`,
+            const response = await axios.delete(`/api/message/conversations/${conversationId}/participants`,
                 {
                     data: { participantId, participantModel },
                     withCredentials: true

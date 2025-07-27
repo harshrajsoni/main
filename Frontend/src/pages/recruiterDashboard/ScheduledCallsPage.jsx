@@ -9,15 +9,15 @@ const ScheduledCallsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { requests: videoRequests, loading } = useSelector(state => state.videoCallRequests);
+    const { user } = useSelector(state => state.user);
     const [activeCall, setActiveCall] = useState(null);
-    const [user, setUser] = useState(null);
 
     useEffect(() => {
         dispatch(fetchRecruiterRequestsThunk());
     }, [dispatch]);
 
-    // Filter for scheduled calls only
-    const scheduledCalls = videoRequests.filter(r => r.status === 'scheduled');
+    // Filter for scheduled and active calls
+    const scheduledCalls = videoRequests.filter(r => r.status === 'scheduled' || r.status === 'active');
 
     const joinCall = async (callId) => {
         try {
@@ -46,6 +46,8 @@ const ScheduledCallsPage = () => {
 
     const leaveCall = () => {
         setActiveCall(null);
+        // Refresh the video call list when returning from a call
+        dispatch(fetchRecruiterRequestsThunk());
     };
 
     if (activeCall) {

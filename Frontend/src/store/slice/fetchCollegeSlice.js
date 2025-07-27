@@ -5,7 +5,7 @@ import axios from 'axios';
 export const fetchCollegesThunk = createAsyncThunk('colleges/fetchColleges',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('http://localhost:3000/api/recruiter/colleges', {
+            const response = await axios.get('/api/recruiter/colleges', {
                 withCredentials: true,
             });
             return response.data.colleges || [];

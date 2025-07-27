@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStudentVideoCallsThunk, clearError } from '../../store/slice/studentVideoCallSlice';
 import { getProfile, logoutUser } from '../../store/slice/userSlice';
+import VideoCall from '../../components/VideoCall';
 
 const StudentDashboard = () => {
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.user);
     const { videoCalls, loading, error } = useSelector(state => state.studentVideoCalls);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [activeCall, setActiveCall] = useState(null);
 
     useEffect(() => {
         dispatch(getProfile());
@@ -35,8 +37,50 @@ const StudentDashboard = () => {
         window.location.href = "/login";
     };
 
+    const joinCall = async (callId) => {
+        try {
+            const response = await fetch('/api/request-video-call/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ requestId: callId })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setActiveCall({
+                    roomId: data.roomId,
+                    callId: callId
+                });
+            } else {
+                alert('Failed to join call: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error joining call:', error);
+            alert('Failed to join call');
+        }
+    };
+
+    const leaveCall = () => {
+        setActiveCall(null);
+        // Refresh the video call list when returning from a call
+        dispatch(fetchStudentVideoCallsThunk());
+    };
+
     if (!user) {
         return <div>Loading...</div>;
+    }
+
+    if (activeCall) {
+        return (
+            <VideoCall
+                roomId={activeCall.roomId}
+                userId={user._id}
+                userType="student"
+                onLeave={leaveCall}
+            />
+        );
     }
 
     return (
@@ -166,8 +210,8 @@ const StudentDashboard = () => {
                                 </p>
                             </div>
                             <div style={{
-                                background: call.status === 'scheduled' ? '#e8f5e9' : '#fff3e0',
-                                color: call.status === 'scheduled' ? '#388e3c' : '#f57c00',
+                                background: call.status === 'scheduled' ? '#e8f5e9' : call.status === 'active' ? '#e3f2fd' : '#fff3e0',
+                                color: call.status === 'scheduled' ? '#388e3c' : call.status === 'active' ? '#1976d2' : '#f57c00',
                                 padding: '0.5rem 1rem',
                                 borderRadius: '20px',
                                 fontSize: '0.85rem',
@@ -204,6 +248,37 @@ const StudentDashboard = () => {
                             color: '#888'
                         }}>
                             Request created: {new Date(call.createdAt).toLocaleString()}
+                        </div>
+                        <div style={{ 
+                            marginTop: '1.5rem',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            gap: '1rem'
+                        }}>
+                            {(call.status === 'scheduled' || call.status === 'active') && (
+                                <button
+                                    onClick={() => joinCall(call._id)}
+                                    style={{
+                                        background: '#4caf50',
+                                        color: '#fff',
+                                        border: 'none',
+                                        padding: '0.75rem 1.5rem',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    onMouseOver={e => e.currentTarget.style.background = '#45a049'}
+                                    onMouseOut={e => e.currentTarget.style.background = '#4caf50'}
+                                >
+                                    <span>📹</span>
+                                    Join Video Call
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:3000/api/student';
+const API_BASE = '/api/student';
 
 // Fetch student video calls
 export const fetchStudentVideoCallsThunk = createAsyncThunk(

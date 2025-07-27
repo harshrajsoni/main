@@ -157,13 +157,26 @@ export const joinVideoCall = async (req, res) => {
         const userId = req.user.id;
         const userType = req.user.userType;
 
+        console.log("Join video call request:", { requestId, userId, userType });
+        console.log("User object:", req.user);
+
         const videoCall = await VideoCallRequest.findById(requestId);
         if (!videoCall) {
+            console.log("Video call not found for requestId:", requestId);
             return res.status(404).json({ message: "Video call not found" });
         }
 
-        if (videoCall.status !== "scheduled") {
-            return res.status(400).json({ message: "Video call is not scheduled" });
+        console.log("Found video call:", {
+            id: videoCall._id,
+            status: videoCall.status,
+            scheduledTime: videoCall.scheduledTime,
+            recruiterId: videoCall.recruiterId,
+            collegeId: videoCall.collegeId
+        });
+
+        if (videoCall.status !== "scheduled" && videoCall.status !== "active") {
+            console.log("Video call status is not scheduled or active:", videoCall.status);
+            return res.status(400).json({ message: "Video call is not available for joining" });
         }
 
         // Check if it's time for the call (within 10 minutes of scheduled time)
@@ -172,9 +185,22 @@ export const joinVideoCall = async (req, res) => {
         const timeDiff = Math.abs(now - scheduledTime);
         const tenMinutes = 10 * 60 * 1000;
 
-        if (timeDiff > tenMinutes) {
+        console.log("Time check:", {
+            now: now.toISOString(),
+            scheduledTime: scheduledTime.toISOString(),
+            timeDiff: timeDiff,
+            tenMinutes: tenMinutes,
+            isWithinTime: timeDiff <= tenMinutes
+        });
+
+        // For development/testing, allow calls within 24 hours of scheduled time
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        if (timeDiff > twentyFourHours) {
+            console.log("Video call time check failed - outside 24 hour window");
             return res.status(400).json({ message: "Video call time has passed or not yet started" });
         }
+        
+        console.log("Time check passed - within allowed window");
 
         // Generate room ID if not exists
         if (!videoCall.roomId) {

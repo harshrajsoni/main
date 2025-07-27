@@ -4,7 +4,7 @@ import axios from 'axios';
 export const fetchRecruitersThunk = createAsyncThunk('recruiters/fetchRecruiters',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('http://localhost:3000/api/college/recruiters', {
+            const response = await axios.get('/api/college/recruiters', {
                 withCredentials: true
             });
 

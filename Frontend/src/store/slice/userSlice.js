@@ -14,7 +14,7 @@ export const loginUser = createAsyncThunk('user/loginUser',
             let response;
             if (userType === 'college') {
                 // College login (with college_email, college_password, member email, member password)
-                response = await axios.post('http://localhost:3000/api/user/login/college',
+                response = await axios.post('/api/user/login/college',
                     {
                         college_email,
                         college_password,
@@ -26,7 +26,7 @@ export const loginUser = createAsyncThunk('user/loginUser',
                 );
             } else if (userType === 'student' || userType === 'recruiter') {
                 // Student or recruiter login
-                response = await axios.post(`http://localhost:3000/api/user/login/${userType}`,
+                response = await axios.post(`/api/user/login/${userType}`,
                     {
                         email,
                         password,
@@ -53,13 +53,13 @@ export const signupUser = createAsyncThunk('user/signupUser',
             let response;
             if (userType === 'college') {
                 // College signup
-                response = await axios.post('http://localhost:3000/api/user/signup/college-signup', userData, { withCredentials: true });
+                response = await axios.post('/api/user/signup/college-signup', userData, { withCredentials: true });
             } else if (userType === 'student') {
                 // Student signup
-                response = await axios.post('http://localhost:3000/api/user/signup/student-signup', userData, { withCredentials: true });
+                response = await axios.post('/api/user/signup/student-signup', userData, { withCredentials: true });
             } else if (userType === 'recruiter') {
                 // Recruiter signup
-                response = await axios.post('http://localhost:3000/api/user/signup/recruiter-signup', userData, { withCredentials: true });
+                response = await axios.post('/api/user/signup/recruiter-signup', userData, { withCredentials: true });
             } else {
                 return rejectWithValue('Invalid user type');
             }
@@ -77,7 +77,7 @@ export const signupUser = createAsyncThunk('user/signupUser',
 export const logoutUser = createAsyncThunk('user/logoutUser',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/user/logout', {}, {
+            const response = await axios.post('/api/user/logout', {}, {
                 withCredentials: true
             });
             return response.data;
@@ -95,7 +95,7 @@ export const getProfile = createAsyncThunk('user/getProfile',
     async (_, { rejectWithValue }) => {
         try {
             //axios.get second argument is withCredentials.
-            const response = await axios.get('http://localhost:3000/api/user/get-profile', {
+            const response = await axios.get('/api/user/get-profile', {
                 withCredentials: true
             });
             return response.data;
